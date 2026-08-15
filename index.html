@@ -788,6 +788,13 @@ header .sub{font-size:11px;color:#9aa0aa;letter-spacing:.06em;text-transform:upp
 .body .look{font-size:13px;line-height:1.45;margin-top:8px;border-left:3px solid var(--rule);padding-left:9px}
 .body .story{font-size:12.5px;line-height:1.5;margin-top:8px;color:var(--ink-2)}
 .body .caveat{font-size:11px;line-height:1.4;margin-top:7px;color:var(--ink-3);font-style:italic}
+/* Reference shots. Horizontal strip so a stop with two candidate photos does
+   not push the rest of the card off the screen. */
+.shots{display:flex;gap:6px;overflow-x:auto;margin:2px 0 6px;-webkit-overflow-scrolling:touch}
+.shots a{flex:0 0 auto;line-height:0}
+.shots img{height:132px;width:auto;max-width:none;border:1px solid var(--rule);border-radius:2px;background:var(--paper)}
+.shotcap{font-size:10.5px;line-height:1.35;color:var(--ink-3);margin-bottom:8px}
+.noshot{font-size:11px;line-height:1.4;color:var(--ink-3);font-style:italic;margin-bottom:8px}
 .acts{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}
 .acts button,.acts a{
   border:1.5px solid var(--ink);background:none;border-radius:2px;padding:8px 11px;
@@ -1093,6 +1100,13 @@ const D=[
 
 const YC={"2025":"#2e9e6b","2024":"#d9a017","2023":"#dd4f92","2022":"#8257c8","pre-2022":"#3f77d4"};
 const YEARS=["2025","2024","2023","2022","pre-2022"];
+/* Reference photos, keyed by mural number, pulled from the festival's own
+   mural gallery and matched on artist + year. `u` is the wixstatic media id;
+   PHOTO() sizes it down on their CDN rather than shipping 3 MB originals.
+   Where an artist painted more than one wall the gallery does not say which
+   photo is which, so every candidate is shown and the card says so. */
+const PH={"1":[{"c":"Connor Kouwenhoven","u":"ab4dea_89a87f758130442c84409c158ac634ec~mv2.jpg","y":"2025"}],"2":[{"c":"Kayla Gowans","u":"ab4dea_91565eb123ba40f2922722ee05afcd00~mv2.jpg","y":"2025"}],"4":[{"c":"Anaïs Lera","u":"ab4dea_9f020e642e2e41c1b99d6773b7a5adc5~mv2.jpg","y":"2025"}],"6":[{"c":"Andrew Hem","u":"ab4dea_28038e0fd55d42a9b5ae5a18401d5105~mv2.jpg","y":"2025"}],"7":[{"c":"Corey Moraes","u":"ab4dea_f04079aa28734ef2ac97c02211b40f5f~mv2.jpg","y":"2025"}],"8":[{"c":"TEMPONOK","u":"ab4dea_49e6b7f0d28f41df8f8acf095a283c01~mv2.jpg","y":"2025"}],"9":[{"c":"Aéro","u":"ab4dea_67123af41ec04d5c9bbcc05ecfd9641f~mv2.jpg","y":"2025"}],"10":[{"c":"Jack Lack","u":"e89abf_b795e62ea8af40e6aba2bb0280b585e9~mv2.jpeg","y":"2026"}],"11":[{"c":"Jeks","u":"ab4dea_4357b990881a4d1891f37aba2720f973~mv2.jpg","y":"2025"}],"12":[{"c":"Gijs","u":"ab4dea_97875972b9d042148e987ed781c60baa~mv2.jpg","y":"2025"}],"13":[{"c":"Fio Silva","u":"fda2bc_ed2f5eee1c454fd588e0f3e3c0c98da3~mv2.jpg","y":"2024"},{"c":"Fio Silva","u":"fda2bc_27715df10af94026a048bd29d454543b~mv2.jpg","y":"2024"},{"c":"Fio Silva","u":"fda2bc_4888b24266c44886aee45b60949e736d~mv2.jpg","y":"2024"}],"14":[{"c":"Guillem Font","u":"fda2bc_293f0c864c624deab103ffc88b43f282~mv2.jpg","y":"2024"}],"15":[{"c":"Juanjo Surace","u":"fda2bc_cc5c127e23914401935ead66bd70774d~mv2.jpg","y":"2024"},{"c":"Juanjo Surace","u":"fda2bc_4c1ece1401b2487a94c58bfc39dccb90~mv2.jpg","y":"2024"}],"16":[{"c":"NEAN","u":"fda2bc_8be2d98191ca49749965db99f6155ded~mv2.jpg","y":"2024"}],"17":[{"c":"Sophie Mess","u":"fda2bc_6e06d289fbe44e6ead777ce58aca8071~mv2.jpg","y":"2024"},{"c":"Sophie Mess","u":"fda2bc_98862a2474564240ab92db65e8b8ff04~mv2.jpg","y":"2024"}],"18":[{"c":"Leon Keer","u":"fda2bc_afdc82e9de994e7e85d91415613cdcb4~mv2.jpg","y":"2024"}],"19":[{"c":"Nina Kroeker (Commission)","u":"fda2bc_b087ec954ac84c51a4d8822e8df81e6c~mv2.jpg","y":"2024"}],"20":[{"c":"Sophie Mess","u":"fda2bc_6e06d289fbe44e6ead777ce58aca8071~mv2.jpg","y":"2024"},{"c":"Sophie Mess","u":"fda2bc_98862a2474564240ab92db65e8b8ff04~mv2.jpg","y":"2024"}],"22":[{"c":"Juanjo Surace","u":"fda2bc_cc5c127e23914401935ead66bd70774d~mv2.jpg","y":"2024"},{"c":"Juanjo Surace","u":"fda2bc_4c1ece1401b2487a94c58bfc39dccb90~mv2.jpg","y":"2024"}],"23":[{"c":"Carly Bowman - The Vanishing","u":"67434e_5400399ebd08401e8e39b333bf1691a1~mv2.jpeg","y":"2023"}],"24":[{"c":"Curtis Hylton - Floral Belted Kingfisher","u":"fda2bc_2b105013ca0b4ba8a0db57d3ae85247e~mv2.jpg","y":"2023"}],"25":[{"c":"SATR - Let the Lion Fall, Love Will Catch It","u":"fda2bc_7b911162fbee4a7e8363b3b59f1b2960~mv2.jpg","y":"2023"}],"26":[{"c":"HENGone - Dynamic Wall With a View","u":"fda2bc_3e050ef7b6b54514837fd65f25f9a3dd~mv2.jpg","y":"2023"}],"27":[{"c":"Ronnie Harris - Sílhqey telí Sts’elexw","u":"fda2bc_e81b0cc5856b437c87b8f5b22ffd1881~mv2.jpg","y":"2023"}],"28":[{"c":"Carolyn Wong","u":"fda2bc_ad2fd7d5fe6e499097a14485861445b2~mv2.jpg","y":"2023"}],"29":[{"c":"Curtis Hylton - Floral Belted Kingfisher","u":"fda2bc_2b105013ca0b4ba8a0db57d3ae85247e~mv2.jpg","y":"2023"}],"30":[{"c":"Jared Deck - Stl'áleqem","u":"fda2bc_649eeb2dfdf5453db5e1011cf4eec513~mv2.jpg","y":"2023"}],"31":[{"c":"Malik - Don Quixote Y La Rana","u":"fda2bc_0b0e8cf5e99b48288a10ef042970bd79~mv2.jpg","y":"2022"}],"32":[{"c":"Raven-Tacuara - Undulation and Turmoil","u":"fda2bc_073237718c424514a48483c807853f3e~mv2.jpg","y":"2022"}],"33":[{"c":"Tierney Milne - Mood Ring Romantics","u":"fda2bc_06fb26362e864a87be8b17a478a803ba~mv2.jpg","y":"2022"}],"34":[{"c":"Jillian Mundy - Eden","u":"fda2bc_d2c3748134e24062894c9c5ff3b956ee~mv2.jpg","y":"2022"}],"35":[{"c":"LALA - The Aquarium","u":"fda2bc_9f8be94335df46f28f433b7688d62936~mv2.jpg","y":"2022"}],"36":[{"c":"Chase Gray - Legendary Pokemon","u":"fda2bc_b17b7d3fb7914a83861afccb5e746df5~mv2.jpg","y":"2022"},{"c":"Chase Gray - Chilliwack Pride","u":"fda2bc_72392010541a430f85c59aced99ebeac~mv2.png","y":"2022"}],"37":[{"c":"Chantelle Trainor-Matties -Hats'al̓t","u":"fda2bc_806415986b3e46d99caa952fe15ce7bc~mv2.jpg","y":"2022"}],"38":[{"c":"Marianne Palmer - Love and Were Loved","u":"fda2bc_194382ad173f49fbb3c8c1fd83382d98~mv2.jpg","y":"2022"}],"39":[{"c":"Chase Gray - Legendary Pokemon","u":"fda2bc_b17b7d3fb7914a83861afccb5e746df5~mv2.jpg","y":"2022"},{"c":"Chase Gray - Chilliwack Pride","u":"fda2bc_72392010541a430f85c59aced99ebeac~mv2.png","y":"2022"}],"40":[{"c":"Hoxxoh - The Alpinist (Dedicated to Marc Andre Leclerc)","u":"fda2bc_0610bf893e924e9b88f2ae79aed342aa~mv2.jpg","y":"2022"}],"41":[{"c":"Chris Perez - Ethereal Beauty","u":"fda2bc_b92a6d98424a40369f9b977c00fc957a~mv2.jpg","y":"2021"}],"42":[{"c":"Jason Botkin - I Will Not Fear","u":"fda2bc_f00c928bdb854e5696f625c7d10957c7~mv2.jpg","y":"2021"}],"43":[{"c":"Jarus - Daydream on a Table","u":"fda2bc_2f7d0221ebbd4f39a4aed96d538242aa~mv2.jpg","y":"2021"}],"44":[{"c":"Ankh One & Nicole Boyce - Eclosion","u":"fda2bc_e713728b90204e3f8a2917bbd41286ff~mv2.jpg","y":"2021"}],"45":[{"c":"Lucas Simpson - Mount Cheam (Lhilheqey)","u":"fda2bc_709553d01ba3468f8c432702711b46a1~mv2.jpg","y":"2021"}],"46":[{"c":"Chantelle Trainor-Matties -  Raven","u":"fda2bc_d3991abca13d4d5a9b06442073c33468~mv2.jpg","y":"2021"}],"47":[{"c":"Siobhan D'Souza - Jellyfish Jail","u":"fda2bc_35cac6f38fb942c8b7e5616fa8f2f1e8~mv2.jpg","y":"2021"}],"48":[{"c":"Kyle Mirva - Blue Lady","u":"fda2bc_877185cefe454d27a7be9683c6b2da5e~mv2.jpg","y":"2021"}],"55":[{"c":"Andrew Hem","u":"ab4dea_28038e0fd55d42a9b5ae5a18401d5105~mv2.jpg","y":"2025"}]};
+const PHOTO=(u,w)=>"https://static.wixstatic.com/media/"+u+"/v1/fill/w_"+w+",h_"+Math.round(w*0.66)+",al_c,q_80,enc_auto/photo.jpg";
 const FAR=[3,5,10];              // drive-to, outside any sane walk
 const OUTER=[4,17,23];           // walkable but a real detour
 
@@ -1301,6 +1315,19 @@ function skipHTML(){
     <div class="chips">${out.map(m=>`<button class="chip" data-unskip="${m.n}">#${m.n} ${esc(m.ti||m.a)}<span style="opacity:.55">put back</span></button>`).join("")}</div>
   </div>`;
 }
+/* Reference photo(s) for a stop, so you can check the wall in front of you is
+   the one on the card. Loaded lazily — 50-odd photos would otherwise land on
+   a phone's data plan the moment the sheet opens. */
+function shotsHTML(m){
+  const ps=PH[m.n];
+  if(!ps||!ps.length)return '<div class="noshot">The festival has not published a photo of this one. Use Street View below.</div>';
+  const many=ps.length>1;
+  return `<div class="shots">${ps.map(p=>`
+    <a href="${PHOTO(p.u,1400)}" target="_blank" rel="noopener">
+      <img loading="lazy" decoding="async" src="${PHOTO(p.u,560)}" alt="${esc(p.c)}">
+    </a>`).join("")}</div>
+    <div class="shotcap">${many?"Same artist painted more than one wall and the festival gallery does not label which is which — check both.":"Festival photo · "+esc(ps[0].c)}</div>`;
+}
 function routeHTML(){
   if(!ORDER.length)return '<div class="note">No murals in the route. Open Plan and switch some years back on, or put a skipped stop back below.</div>'+skipHTML();
   const sp=startPoint();
@@ -1317,6 +1344,7 @@ function routeHTML(){
       </div>
       <div class="body">
         ${near?'<div class="near">YOU ARE HERE</div>':''}
+        ${shotsHTML(m)}
         <div class="eyebrow">#${m.n} · ${m.y}</div>
         <h3>${m.ti?esc(m.ti):"Untitled"}</h3>
         <div class="artist">${esc(m.a)}</div>
@@ -1331,6 +1359,7 @@ function routeHTML(){
           <button data-skip="${m.n}">Skip</button>
           <button data-show="${m.n}">Show on map</button>
           <a href="https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lng}&travelmode=walking" target="_blank" rel="noopener">Directions</a>
+          <a href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${m.lat},${m.lng}" target="_blank" rel="noopener">Street view</a>
         </div>
       </div>
     </article>`;
@@ -1378,6 +1407,7 @@ function setHTML(){
     Mural list, artists and addresses come from the festival's 2025 guide; titles and artist notes come from the festival's own mural pages where they publish them.
     Pins are geocoded from street addresses, so a pin marks the building, not the exact wall. Several addresses carry three or four murals, so read the note on each stop.
     For anything the festival has not published, this app says so rather than guessing.
+    <br><br>Reference photos are the festival's own gallery images, loaded from their site and credited to them. They are matched to each stop by artist and year, so where one artist painted several walls the card shows every candidate rather than picking one.
   </div>`;
 }
 function wire(){
