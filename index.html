@@ -809,6 +809,10 @@ header .sub{font-size:11px;color:#9aa0aa;letter-spacing:.06em;text-transform:upp
   border-radius:2px;padding:9px 11px;font-size:13px;font-weight:600;background:none;
 }
 .chip.on{border-color:var(--ink);background:var(--ink);color:var(--paper)}
+/* Skipped stops sit below the route as put-back chips: quieter than a stop
+   card, since they are out of the walk until tapped. */
+.skiplist{border-top:1px solid var(--rule);background:var(--paper)}
+.skiplist .chip{font-size:12px;font-weight:600;background:var(--panel);text-align:left}
 .chip .sw{width:11px;height:11px;border-radius:50%}
 .row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;font-size:14px}
 .row + .row{border-top:1px solid var(--rule)}
@@ -1103,7 +1107,8 @@ let S={
   includeFar:false,
   includeOuter:true,
   start:"here",
-  seen:new Set()
+  seen:new Set(),
+  skip:new Set()
 };
 try{
   const raw=store.get("cmw.v1");
@@ -1113,12 +1118,13 @@ try{
     if(typeof o.includeOuter==="boolean")S.includeOuter=o.includeOuter;
     if(o.start)S.start=o.start;
     if(o.seen)S.seen=new Set(o.seen);
+    if(o.skip)S.skip=new Set(o.skip);
   }
 }catch(e){}
 function save(){
   try{store.set("cmw.v1",JSON.stringify({
     years:[...S.years],includeFar:S.includeFar,includeOuter:S.includeOuter,
-    start:S.start,seen:[...S.seen]
+    start:S.start,seen:[...S.seen],skip:[...S.skip]
   }))}catch(e){}
 }
 
@@ -1174,6 +1180,7 @@ let me=null, heading=null, ORDER=[];
 
 function selected(){
   return D.filter(m=>{
+    if(S.skip.has(m.n))return false;
     if(!S.years.has(m.y))return false;
     if(FAR.includes(m.n)&&!S.includeFar)return false;
     if(OUTER.includes(m.n)&&!S.includeOuter)return false;
@@ -1284,8 +1291,18 @@ function renderSheet(){
   sbody.innerHTML = mode==="route" ? routeHTML() : setHTML();
   wire();
 }
+/* Skipped murals are dropped from the route entirely, so the only way back to
+   one is this list at the foot of the route sheet. */
+function skipHTML(){
+  const out=D.filter(m=>S.skip.has(m.n));
+  if(!out.length)return "";
+  return `<div class="sect skiplist">
+    <h4>Skipped · not in the route</h4>
+    <div class="chips">${out.map(m=>`<button class="chip" data-unskip="${m.n}">#${m.n} ${esc(m.ti||m.a)}<span style="opacity:.55">put back</span></button>`).join("")}</div>
+  </div>`;
+}
 function routeHTML(){
-  if(!ORDER.length)return '<div class="note">No murals match the current filters. Open Plan and switch some years back on.</div>';
+  if(!ORDER.length)return '<div class="note">No murals in the route. Open Plan and switch some years back on, or put a skipped stop back below.</div>'+skipHTML();
   const sp=startPoint();
   let total=0, prev=sp;
   let h="";
@@ -1311,6 +1328,7 @@ function routeHTML(){
         ${!m.ti?'<div class="caveat">The festival has not published a title for this one.</div>':''}
         <div class="acts">
           <button data-see="${m.n}" class="${seen?'on':''}">${seen?"Seen":"Mark seen"}</button>
+          <button data-skip="${m.n}">Skip</button>
           <button data-show="${m.n}">Show on map</button>
           <a href="https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lng}&travelmode=walking" target="_blank" rel="noopener">Directions</a>
         </div>
@@ -1319,7 +1337,7 @@ function routeHTML(){
   });
   const mins=Math.round(total/75)+ORDER.length*3;
   return `<div class="note"><b style="color:var(--ink)">${ORDER.length} stops · ${fmtD(total)} walking · about ${Math.floor(mins/60)}h ${mins%60}m</b><br>
-  Estimate assumes 4.5 km/h and three minutes at each mural. Distances are straight-line between pins, so the real walk is a bit longer.</div>`+h;
+  Estimate assumes 4.5 km/h and three minutes at each mural. Distances are straight-line between pins, so the real walk is a bit longer.</div>`+h+skipHTML();
 }
 function setHTML(){
   const counts={};YEARS.forEach(y=>counts[y]=D.filter(m=>m.y===y).length);
@@ -1352,7 +1370,9 @@ function setHTML(){
   <div class="sect">
     <h4>Progress</h4>
     <div class="row"><div>Seen so far</div><span class="stat">${S.seen.size} / ${D.length}</span></div>
+    <div class="row"><div>Skipped<small>Skipped murals are pulled out of the route, so the walk reroutes around them.</small></div><span class="stat">${S.skip.size}</span></div>
     <button class="btn wide" id="btnReset">Clear seen list</button>
+    <button class="btn wide" id="btnUnskipAll">Put every skipped mural back</button>
   </div>
   <div class="note">
     Mural list, artists and addresses come from the festival's 2025 guide; titles and artist notes come from the festival's own mural pages where they publish them.
@@ -1364,6 +1384,15 @@ function wire(){
   sbody.querySelectorAll("[data-see]").forEach(b=>b.onclick=()=>{
     const n=+b.dataset.see; S.seen.has(n)?S.seen.delete(n):S.seen.add(n);
     save(); drawMap(); renderSheet(); updateNext();
+  });
+  // Skip and seen are exclusive: skipping a stop drops it from the route, so
+  // leaving it flagged as seen would inflate the count for a mural not walked.
+  sbody.querySelectorAll("[data-skip]").forEach(b=>b.onclick=()=>{
+    const n=+b.dataset.skip; S.skip.add(n); S.seen.delete(n);
+    save(); rebuild();
+  });
+  sbody.querySelectorAll("[data-unskip]").forEach(b=>b.onclick=()=>{
+    S.skip.delete(+b.dataset.unskip); save(); rebuild();
   });
   sbody.querySelectorAll("[data-show]").forEach(b=>b.onclick=()=>{
     const n=+b.dataset.show, m=D.find(x=>x.n===n);
@@ -1384,6 +1413,8 @@ function wire(){
   const c=document.getElementById("btnCompass"); if(c)c.onclick=askCompass;
   const r=document.getElementById("btnReset");
   if(r)r.onclick=()=>{S.seen.clear();D.forEach(m=>delete m._pinged);save();drawMap();renderSheet();updateNext()};
+  const u=document.getElementById("btnUnskipAll");
+  if(u)u.onclick=()=>{S.skip.clear();save();rebuild();renderSheet()};
 }
 function askCompass(){
   if(typeof DeviceOrientationEvent!=="undefined"&&DeviceOrientationEvent.requestPermission){
